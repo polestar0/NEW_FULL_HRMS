@@ -1,29 +1,34 @@
-﻿# Multi-stage build for production
-FROM node:18-alpine as builder
-
+﻿# Build stage
+FROM node:18-alpine AS builder
 WORKDIR /app
 
 # Copy package files
-COPY package.json ./
+COPY package*.json ./
 
-# Use npm install instead of npm ci
-RUN npm install --only=production
+# Install dependencies
+RUN npm install --no-fund --no-audit
 
-# Copy source code
+# Copy source code including .env file
 COPY . .
 
-# Build the app
+# Build with environment variables
+ARG REACT_APP_GOOGLE_CLIENT_ID
+ARG REACT_APP_API_URL
+ENV REACT_APP_GOOGLE_CLIENT_ID=${REACT_APP_GOOGLE_CLIENT_ID}
+ENV REACT_APP_API_URL=${REACT_APP_API_URL}
+
 RUN npm run build
 
 # Production stage
-FROM nginx:alpine
+FROM node:18-alpine
+WORKDIR /app
 
-# Copy built assets from builder stage
-COPY --from=builder /app/build /usr/share/nginx/html
+# Copy built app
+COPY --from=builder /app/build ./build
 
-# Copy nginx config if you have one
-# COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Install serve
+RUN npm install -g serve
 
-EXPOSE 80
+EXPOSE 3000
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["serve", "-s", "build", "-l", "3000"]

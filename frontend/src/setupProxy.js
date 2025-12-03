@@ -1,4 +1,4 @@
-﻿// components/EmployeeList.js - Enhanced Version
+// components/EmployeeList.js - Enhanced Version
 
 import React, { useState, useEffect } from "react";
 import { employeeAPI } from "../services/api";

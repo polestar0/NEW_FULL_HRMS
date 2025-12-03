@@ -50,11 +50,16 @@ services:
     build: ./frontend
     container_name: hrms_frontend
     restart: unless-stopped
+    
+    network_mode: host  # ✅ ADD THIS - Allows access to localhost:8001
+
+    # No ports mapping needed with host network
     depends_on:
       - backend
     ports:
       - "3000:80"
     environment:
+      
       REACT_APP_API_URL: http://localhost:8001
       REACT_APP_GOOGLE_CLIENT_ID: 60209345033-dagb9pvr7maru9uq13i7ntoj4p513ls5.apps.googleusercontent.com
 
